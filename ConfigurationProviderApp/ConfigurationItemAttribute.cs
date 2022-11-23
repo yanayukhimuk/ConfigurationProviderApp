@@ -7,13 +7,13 @@ namespace ConfigurationProviderApp
     [AttributeUsage(AttributeTargets.All)]
     public class ConfigurationItemAttribute : Attribute
     {
-        public string PropertyName { get; }
-        public Type Type1 { get; }
+        public readonly string PropertyName;
+        public readonly Type Type;
 
         public ConfigurationItemAttribute(string propertyName, Type type)
         {
-            PropertyName = propertyName;
-            Type1 = type;
+            this.PropertyName = propertyName;
+            this.Type = type;
         }
     }
 }

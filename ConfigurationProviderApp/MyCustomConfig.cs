@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ConfigurationProviderApp
 {
-    internal class MyCustomConfig
+    public class MyCustomConfig
     {
         [ConfigurationItem("SomeSetting", typeof(MyFileConfigurationProvider))]
         public string SomeSetting { get; set; }

@@ -6,13 +6,17 @@ namespace ConfigurationProviderApp
 {
     class Program
     {
+        private static MyFileConfigurationProvider configurationProvider;
+
+        internal static MyFileConfigurationProvider ConfigurationProvider { get => configurationProvider; set => configurationProvider = value; }
+
         static void Main(string[] args)
         {
-            MemberInfo info = typeof(ConfigurationItemAttribute);
-            IConfigurationBuilder cb = new ConfigurationBuilder();
-            cb.Add(new MyFileConfigurationSource() { Optional = false, Path = "C:\\Users\\Yana_Yukhimuk\\source\\repos\\ConfigurationProviderApp\\ConfigurationProviderApp\\MyConfig.json" });
+            MyCustomConfig configModel = (configurationProvider).Get<MyCustomConfig>();
+            MyCustomConfig configModel2 = new MyCustomConfig { SomeSetting = "New setting" };
+            configurationProvider.Set(configModel2);
 
-            _ = cb.Build();
+            var value1 = configModel2.SomeSetting;
         }
     }
 }
