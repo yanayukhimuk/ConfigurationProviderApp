@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ConfigurationProviderApp
 {
-    internal class MyFileConfigurationSource : FileConfigurationSource
+    public class MyFileConfigurationSource : FileConfigurationSource
     {
         public override IConfigurationProvider Build(IConfigurationBuilder builder) =>
             new MyFileConfigurationProvider(this);

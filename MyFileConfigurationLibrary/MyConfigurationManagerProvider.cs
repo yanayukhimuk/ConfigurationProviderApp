@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.Json.Nodes;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 
 namespace ConfigurationProviderApp
 {
-    public class MyFileConfigurationProvider : FileConfigurationProvider
+    public class MyConfigurationManagerProvider 
     {
-        public MyFileConfigurationProvider(FileConfigurationSource source) : base (source)
+        private Configuration Data;
+        public MyConfigurationManagerProvider() 
         {
-
-        }
-        public override void Load(Stream stream)
-        {
-            Data = (IDictionary<string, string>)System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(stream); 
+            Data = System.Configuration.ConfigurationManager.OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.None);
         }
 
         public T Get<T>() where T : class, new()
@@ -32,12 +30,12 @@ namespace ConfigurationProviderApp
                 {
                     if (attribute is ConfigurationItemAttribute itemAttribute) 
                     {
-                        if(itemAttribute.Type != typeof(MyFileConfigurationProvider)) 
+                        if(itemAttribute.Type != typeof(MyConfigurationManagerProvider)) 
                         {
                             continue;
                         }
 
-                        string propertyName = Data[itemAttribute.PropertyName];
+                        string propertyName = Data.AppSettings.Settings[itemAttribute.PropertyName].Value;
                         property.SetValue(configModel, Convert.ChangeType(propertyName, property.PropertyType));
                     }
                 }
@@ -55,15 +53,17 @@ namespace ConfigurationProviderApp
                 {
                     if (attribute is ConfigurationItemAttribute itemAttribute)
                     {
-                        if (itemAttribute.Type != typeof(MyFileConfigurationProvider))
+                        if (itemAttribute.Type != typeof(MyConfigurationManagerProvider))
                         {
                             continue;
                         }
 
-                        Data[itemAttribute.PropertyName] = property.GetValue(model).ToString();
+                        Data.AppSettings.Settings[itemAttribute.PropertyName].Value = property.GetValue(model).ToString();
                     }
                 }
             }
+            Data.Save(ConfigurationSaveMode.Full, true);
+            System.Configuration.ConfigurationManager.RefreshSection("appSettings");
         }
     }
 }

@@ -8,5 +8,8 @@ namespace ConfigurationProviderApp
     {
         [ConfigurationItem("SomeSetting", typeof(MyFileConfigurationProvider))]
         public string SomeSetting { get; set; }
+
+        [ConfigurationItem("My Settings", typeof(MyConfigurationManagerProvider))]
+        public string MySetting { get; set; }
     }
 }

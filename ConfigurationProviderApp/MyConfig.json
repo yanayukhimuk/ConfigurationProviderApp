@@ -1,5 +1,1 @@
-﻿{
-  "SomeSetting": "SomeValue",
-  "MySetting": "MyValue",
-  "NewSetting": "NewValue"
-}
+{"SomeSetting":"New setting","MySetting":"MyValue","NewSetting":"NewValue"}
