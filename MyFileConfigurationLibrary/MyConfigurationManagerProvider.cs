@@ -62,7 +62,7 @@ namespace ConfigurationProviderApp
                     }
                 }
             }
-            Data.Save(ConfigurationSaveMode.Full, true);
+            Data.Save(ConfigurationSaveMode.Full);
             System.Configuration.ConfigurationManager.RefreshSection("appSettings");
         }
     }
