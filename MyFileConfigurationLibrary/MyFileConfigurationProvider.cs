@@ -22,7 +22,7 @@ namespace ConfigurationProviderApp
 
         public T Get<T>() where T : class, new()
         {
-            T configModel = new T();
+            T configModel = new();
 
             var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
 
