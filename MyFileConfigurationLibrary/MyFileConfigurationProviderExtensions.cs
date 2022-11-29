@@ -11,7 +11,7 @@ namespace ConfigurationProviderApp
     {
         public static IConfigurationBuilder AddMyConfiguration(this IConfigurationBuilder builder, string path)
         {
-            builder.Add(new MyFileConfigurationSource() { Path = path });
+            builder.Add(new MyFileConfigurationSource(path));
             return builder;
         }
     }

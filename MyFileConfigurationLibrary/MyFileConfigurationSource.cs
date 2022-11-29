@@ -9,7 +9,9 @@ namespace ConfigurationProviderApp
 {
     public class MyFileConfigurationSource : FileConfigurationSource
     {
+        private readonly string? _path;
+        public MyFileConfigurationSource (string? path) => _path = path;    
         public override IConfigurationProvider Build(IConfigurationBuilder builder) =>
-            new MyFileConfigurationProvider(this);
+            new MyFileConfigurationProvider();
     }
 }

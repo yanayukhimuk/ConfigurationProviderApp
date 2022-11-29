@@ -11,13 +11,26 @@ namespace ConfigurationProviderApp
 {
     public class MyFileConfigurationProvider : FileConfigurationProvider
     {
-        public MyFileConfigurationProvider(FileConfigurationSource source) : base (source)
-        {
-            Data = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(source.Path));
-        }
+        private readonly string? _path;
+
+        public MyFileConfigurationProvider(MyFileConfigurationSource source) : base(source) => source.Path = _path;
+
         public override void Load(Stream stream)
         {
-            Data = JsonSerializer.Deserialize<Dictionary<string, string>>(stream);
+            var obj = JsonSerializer.Deserialize<Dictionary<string, string>>(stream);
+
+            var fieldToRead = typeof(MyCustomConfig).GetFields().Where(x =>
+                x.CustomAttributes.OfType<ConfigurationItemAttribute>().First() is not null);
+
+            foreach (var f in fieldToRead)
+            {
+                var attr = f.CustomAttributes.OfType<ConfigurationItemAttribute>().First();
+
+                if (obj.ContainsKey(attr.PropertyName))
+                {
+                    Data[f.Name] = obj[attr.PropertyName];
+                }
+            }
         }
 
         public T Get<T>() where T : class, new()
