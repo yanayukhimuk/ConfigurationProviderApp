@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -10,44 +11,49 @@ namespace ConfigurationProviderApp
 {
     class Program
     {
-        //private static string path = "C:\\Users\\ASUS\\Source\\Repos\\ConfigurationProvider\\ConfigurationProviderApp\\MyConfig.json";
-        //private static MyFileConfigurationProvider _configurationProvider = (MyFileConfigurationProvider)new MyFileConfigurationSource() {Path = path }.Build(null);
-        //private static MyConfigurationManagerProvider _myConfigurationManagerProvider = new MyConfigurationManagerProvider();
-
-        private static List<IConfigurationSource> pluginSources = new List<IConfigurationSource>();
+        private static List<IConfigurationSource> pluginSources = new();
         static void Main(string[] args)
         {
             if (Directory.Exists("plugins"))
             {
-                var files = Directory.GetFiles("plugins");
+                var files = Directory.GetFiles("plugins"); // extensions check
                 foreach (var plugin in files)
                 {
-                    var assembly = Assembly.Load(File.ReadAllBytes(plugin));
-                    var providers = assembly.GetTypes().Where(x => x.IsAssignableTo(typeof(MyFileConfigurationSource)));
-                    foreach (var x in providers)
+                    var fileInfo = new FileInfo(plugin);
+                    var fileExtension = fileInfo.Extension;
+                    Assembly assembly;
+                    IEnumerable<Type> providers;
+
+                    if (fileExtension == ".dll")
                     {
-                        var provider = Activator.CreateInstance(x) as IConfigurationSource;
-                        pluginSources.Add(provider);
+                        assembly = Assembly.Load(File.ReadAllBytes(plugin));
+                        providers = assembly.GetTypes().Where(x => x.IsAssignableTo(typeof(IConfigurationSource)));
+                        foreach (var prov in providers)
+                        {
+                            var provider = Activator.CreateInstance(prov) as IConfigurationSource;
+                            pluginSources.Add(provider);
+                        }
                     }
+                    else
+                        continue;
                 }
+            }
+            else
+            {
+                Console.WriteLine("The directory wasn't found!");
             }
 
             ConfigurationBuilder builder = new ConfigurationBuilder();
+            builder.SetFileProvider(new PhysicalFileProvider(Environment.CurrentDirectory));
 
+            IConfigurationSource source = default;
             foreach (var plugin in pluginSources)
             {
-                plugin.Build(builder);
+                builder.Add(plugin);
+                source = plugin;
             }
 
-            IConfiguration c = builder.Build();
-
-            //MyCustomConfig configModel = (_configurationProvider).Get<MyCustomConfig>();
-            //MyCustomConfig configModel2 = new MyCustomConfig { SomeSetting = "New setting" };
-            //_configurationProvider.Set(configModel2);
-
-            //MyCustomConfig configModel3 = _myConfigurationManagerProvider.Get<MyCustomConfig>();
-            //MyCustomConfig configModel4 = new MyCustomConfig { MySetting = "Custom Settings" };
-            //_myConfigurationManagerProvider.Set(configModel4);
+            IConfiguration config = builder.Build();
         }
     }
 }

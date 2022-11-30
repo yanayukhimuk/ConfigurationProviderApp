@@ -13,10 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MyFileConfigurationLibrary\MyFileConfigurationLibrary.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="ConfigurationProviderApp.dll.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
