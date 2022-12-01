@@ -18,25 +18,6 @@ namespace ConfigurationProviderApp
         public override void Load(Stream stream)
         {
             configuration = JsonSerializer.Deserialize<Dictionary<string, string>>(stream);
-            
-
-            //MyCustomConfig configModel = new();
-            //foreach (var property in typeof(MyCustomConfig).GetProperties(flags))
-            //{
-            //    foreach (var attribute in property.GetCustomAttributes())
-            //    {
-            //        if (attribute is ConfigurationItemAttribute itemAttribute)
-            //        {
-            //            if (itemAttribute.Type != typeof(MyFileConfigurationProvider))
-            //            {
-            //                continue;
-            //            }
-
-            //            string propertyName = Data[itemAttribute.PropertyName];
-            //            property.SetValue(configModel, Convert.ChangeType(propertyName, property.PropertyType));
-            //        }
-            //    }
-            //}
         }
 
         public override void Set(string key, string value)
@@ -53,14 +34,12 @@ namespace ConfigurationProviderApp
                     Data[field.Name] = configuration[attr.PropertyName];
                 }
             }
-
-            //base.Set(key, value);
         }
 
         public override bool TryGet(string key, out string value)
         {
-            var fileds = configuration as Dictionary<string, string>;
-            return fileds.TryGetValue(key, out value);
+            //var fileds = configuration as Dictionary<string, string>;
+            return Data.TryGetValue(key, out value);
         }
     }
 }
