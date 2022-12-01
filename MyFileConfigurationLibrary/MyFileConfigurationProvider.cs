@@ -6,39 +6,61 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
 
 namespace ConfigurationProviderApp
 {
     public class MyFileConfigurationProvider : FileConfigurationProvider
     {
+        Dictionary<string, string> configuration = new Dictionary<string, string>();    
         public MyFileConfigurationProvider(MyFileConfigurationSource source) : base(source) { }
 
         public override void Load(Stream stream)
         {
-            var obj = JsonSerializer.Deserialize<Dictionary<string, string>>(stream);
+            configuration = JsonSerializer.Deserialize<Dictionary<string, string>>(stream);
+            
 
-            var fieldToRead = typeof(MyCustomConfig).GetFields().Where(x =>
-                x.CustomAttributes.OfType<ConfigurationItemAttribute>().FirstOrDefault() is not null);
+            //MyCustomConfig configModel = new();
+            //foreach (var property in typeof(MyCustomConfig).GetProperties(flags))
+            //{
+            //    foreach (var attribute in property.GetCustomAttributes())
+            //    {
+            //        if (attribute is ConfigurationItemAttribute itemAttribute)
+            //        {
+            //            if (itemAttribute.Type != typeof(MyFileConfigurationProvider))
+            //            {
+            //                continue;
+            //            }
 
-            foreach (var field in fieldToRead)
-            {
-                var attr = field.CustomAttributes.OfType<ConfigurationItemAttribute>().First();
-
-                if (obj.ContainsKey(attr.PropertyName))
-                {
-                    Data[field.Name] = obj[attr.PropertyName];
-                }
-            }
+            //            string propertyName = Data[itemAttribute.PropertyName];
+            //            property.SetValue(configModel, Convert.ChangeType(propertyName, property.PropertyType));
+            //        }
+            //    }
+            //}
         }
 
         public override void Set(string key, string value)
         {
-            base.Set(key, value);
+            var fieldsToRead = typeof(MyCustomConfig).GetFields().Where(x =>
+                x.CustomAttributes.OfType<ConfigurationItemAttribute>().FirstOrDefault() is not null);
+
+            foreach (var field in fieldsToRead)
+            {
+                var attr = field.CustomAttributes.OfType<ConfigurationItemAttribute>().First();
+
+                if (configuration.ContainsKey(attr.PropertyName))
+                {
+                    Data[field.Name] = configuration[attr.PropertyName];
+                }
+            }
+
+            //base.Set(key, value);
         }
 
         public override bool TryGet(string key, out string value)
         {
-            return base.TryGet(key, out value);
+            var fileds = configuration as Dictionary<string, string>;
+            return fileds.TryGetValue(key, out value);
         }
     }
 }
